@@ -22,16 +22,16 @@ abstract class Request extends Opts
     public function execApi()
     {
         $this->checkRequiredParams();
-        
+
         $url = $this->getResultApiUrl();
 
-        if($this->logger){
+        if ($this->logger) {
             $this->logger->debug("execApi: " . $url);
         }
 
         $parameters = $this->getParameters();
 
-        if($this->logger){
+        if ($this->logger) {
             $this->logger->debug("with parameters: " . serialize($parameters));
         }
 
@@ -46,7 +46,7 @@ abstract class Request extends Opts
         $apiContent = curl_exec($apiCurl);
 
         if ($apiContent === false) {
-            if($this->logger){
+            if ($this->logger) {
                 $this->logger->error(curl_error($apiCurl));
             }
             curl_close($apiCurl);
@@ -56,64 +56,20 @@ abstract class Request extends Opts
         curl_close($apiCurl);
 
         if (!$apiContent) {
-            if($this->logger){
+            if ($this->logger) {
                 $this->logger->debug("apiContent is empty");
             }
             return false;
         }
 
-        if($this->logger){
+        if ($this->logger) {
             $this->logger->debug("execApi result: " . $apiContent);
         }
 
-        $json = json_decode($apiContent);
-
-        if (isset($json->error) && $json->error) {
-            if (isset($json->error->error_code) && $json->error->error_code) {
-                if ($json->error->error_code == 14) {
-                    /*
-                    if( $need_captcha_response ){
-                        if( is_object( $json ) && isset( $json->error->captcha_sid ) && isset( $json->error->captcha_img ) ){
-                            $recognize = new AntigateRecognizeCaptchaRequest( $json->error->captcha_img );
-                            $recognize->downloadCaptcha();
-                            $result = $recognize->doRecognize();
-                            if( !$result ) {
-                                if($this->logger){
-                                    $this->logger->debug("Don't recognize captcha!");
-                                }
-                                return false;
-                            }
-                            $this->setParameter( "captcha_sid", $json->error->captcha_sid );
-                            $this->setParameter( "captcha_key", $recognize->getRecognizeCaptcha() );
-                            if($this->logger) {
-                                $this->logger->debug("Send captcha_sid " . $json->error->captcha_sid);
-                                $this->logger->debug("Send captcha_key " . $recognize->getRecognizeCaptcha());
-                            }
-                        }
-                        else{
-                            if($this->logger){
-                                $this->logger->debug("Json is corrupt: " . serialize( $json ));
-                            }
-                            return false;
-                        }
-                    }
-                    /**/
-                }
-                $this->error_code = $json->error->error_code;
-            }
-            if (isset($json->error->error_msg) && $json->error->error_msg) {
-                $this->error_msg = $json->error->error_msg;
-                if($this->logger){
-                    $this->logger->error($this->error_msg);
-                }
-            }
-
-            return -1;
-        }
-
-        return $json;
+        return $this->answerProcessing($apiContent);
     }
 
     abstract public function getResultApiUrl();
+    abstract public function answerProcessing($content);
 
 }
