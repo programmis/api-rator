@@ -6,19 +6,6 @@ namespace ApiRator\Includes;
 abstract class Request extends Opts
 {
 
-    private $error_code;
-    private $error_msg;
-
-    public function getErrorCode()
-    {
-        return $this->error_code;
-    }
-
-    public function getErrorMsg()
-    {
-        return $this->error_msg;
-    }
-
     public function execApi()
     {
         $this->checkRequiredParams();
