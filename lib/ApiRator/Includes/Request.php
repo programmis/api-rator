@@ -114,8 +114,6 @@ abstract class Request extends Opts
         return $json;
     }
 
-    abstract public function doRequest();
-
     abstract public function getResultApiUrl();
 
 }
