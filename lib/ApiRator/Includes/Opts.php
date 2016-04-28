@@ -25,7 +25,7 @@ class Opts
     {
         if (preg_match('|' . $this->magic_arg . '_(.*)|', $name, $res)) {
             if (isset($res[1]) && $res[1]) {
-                $this->addParameter($res[1], $value);
+                $this->setParameter($res[1], $value);
             }
         } else {
             if($this->logger){
@@ -126,7 +126,7 @@ class Opts
         return $this;
     }
 
-    public function addParameter($name, $value)
+    public function setParameter($name, $value)
     {
         if (is_array($value)) {
             if (isset($value['value'])) {
