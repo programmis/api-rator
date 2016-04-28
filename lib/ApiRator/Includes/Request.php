@@ -18,10 +18,6 @@ abstract class Request extends Opts
 
         $parameters = $this->getParameters();
 
-        if ($this->logger) {
-            $this->logger->debug("with parameters: " . serialize($parameters));
-        }
-
         $headers['Content-type'] = 'multipart/form-data';
 
         $headers = array_merge($headers, $this->getHeaders());
@@ -31,6 +27,11 @@ abstract class Request extends Opts
         }
 
         $parameters = $this->handleParameters($parameters);
+
+        if ($this->logger) {
+            $this->logger->debug('with headers: ' . serialize($headers));
+            $this->logger->debug("with parameters: " . serialize($parameters));
+        }
         
         $apiCurl = curl_init($url);
         curl_setopt($apiCurl, CURLOPT_POST, 1);
@@ -68,6 +69,9 @@ abstract class Request extends Opts
 
     abstract public function getResultApiUrl();
     abstract public function answerProcessing($content);
-    abstract public function handleParameters($parameters);
+    
+    public function handleParameters($parameters){
+        return $parameters;
+    }
 
 }
