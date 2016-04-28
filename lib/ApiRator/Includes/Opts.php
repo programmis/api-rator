@@ -25,7 +25,7 @@ class Opts
     {
         if (preg_match('|' . $this->magic_arg . '_(.*)|', $name, $res)) {
             if (isset($res[1]) && $res[1]) {
-                $this->setParameter($res[1], $value);
+                $this->addParameter($res[1], $value);
             }
         } else {
             if($this->logger){
@@ -126,14 +126,15 @@ class Opts
         return $this;
     }
 
-    public function setParameter($name, $value)
+    public function addParameter($name, $value)
     {
         if (is_array($value)) {
             if (isset($value['value'])) {
                 $this->parameters[$name]['value'] = $value['value'];
             } else {
+                $this->parameters[$name]['value'] = $value;
                 if($this->logger){
-                    $this->logger->warning('Can\'t set parameter: ' . $name . ', values: ' . serialize($value));
+                    $this->logger->info('Set parameter: ' . $name . ' as array, values: ' . serialize($value));
                 }
             }
             if (isset($value['required'])) {
