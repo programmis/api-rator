@@ -8,11 +8,12 @@ class Opts
 {
 
     private $access_token;
-    private $parameters = array();
+    private $parameters = [];
     private $method;
     protected $logger;
     private $magic_arg;
     private $v;
+    private $headers = [];
 
     public function __construct($magic_arg /* string */, LoggerInterface $loggerInterface = null)
     {
@@ -174,4 +175,18 @@ class Opts
         return $this->method;
     }
 
+    /**
+     * @return array
+     */
+    public function getHeaders()
+    {
+        return $this->headers;
+    }
+
+    public function addHeader($name, $header)
+    {
+        $this->headers[$name] = $header;
+        return $this;
+    }
+    
 }
