@@ -15,7 +15,12 @@ class Opts
     private $v;
     private $headers = [];
 
-    public function __construct($magic_arg /* string */, LoggerInterface $loggerInterface = null)
+    /**
+     * Opts constructor.
+     * @param string $magic_arg
+     * @param LoggerInterface|null $loggerInterface
+     */
+    public function __construct($magic_arg, LoggerInterface $loggerInterface = null)
     {
         $this->magic_arg = $magic_arg;
         $this->logger = $loggerInterface;
