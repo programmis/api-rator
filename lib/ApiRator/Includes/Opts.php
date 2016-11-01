@@ -45,8 +45,8 @@ class Opts
     public function __get($name)
     {
         if (preg_match('|' . $this->magic_arg . '_(.*)|', $name, $res)) {
-            if (isset($res[1]) && $res[1] && array_key_exists($res[1], $this->data)) {
-                return $this->data[$res[1]]['value'];
+            if (isset($res[1]) && $res[1] && array_key_exists($res[1], $this->parameters)) {
+                return $this->getParameter($res[1]);
             }
         } else {
             if ($this->logger) {
@@ -140,6 +140,17 @@ class Opts
     }
 
     /**
+     * @param string $name
+     *
+     * @return string
+     */
+    public function getParameter($name)
+    {
+        return isset($this->parameters[$name]['value'])
+            ? $this->parameters[$name]['value'] : '';
+    }
+
+    /**
      * @return array
      */
     public function getParameters()
@@ -165,7 +176,7 @@ class Opts
 
     /**
      * @param string $name
-     * @param $value
+     * @param array|string $value maybe ['value' => 'test', 'require' => true]
      *
      * @return $this
      */
@@ -174,7 +185,7 @@ class Opts
         if (is_array($value)) {
             if (isset($value['value'])) {
                 $this->parameters[$name]['value'] = $value['value'];
-            } else {
+            } elseif (!isset($value['required'])) {
                 $this->parameters[$name]['value'] = $value;
                 if ($this->logger) {
                     $this->logger->info('Set parameter: ' . $name . ' as array, values: ' . serialize($value));
@@ -190,18 +201,27 @@ class Opts
         return $this;
     }
 
-    public function setParameters($param)
+    /**
+     * @param array $params ['test' => ['value' => 'test']]
+     *
+     * @return $this
+     */
+    public function setParameters($params)
     {
-        if (!is_array($param)
-            || (is_array($param[0]) && !isset($param[0]['value']))
-            || !isset($param['value'])
+        if (!is_array($params)
+            || !isset($params[key($params)])
+            || (
+                !isset($params[key($params)]['value'])
+                && !isset($params[key($params)]['required'])
+            )
         ) {
             if ($this->logger) {
                 $this->logger->error('Please set valid parameters');
             }
             return $this;
         }
-        $this->parameters = $param;
+        $this->parameters = $params;
+
         return $this;
     }
 
