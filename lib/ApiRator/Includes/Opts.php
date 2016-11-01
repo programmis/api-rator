@@ -4,9 +4,12 @@ namespace ApiRator\Includes;
 
 use Psr\Log\LoggerInterface;
 
+/**
+ * Class Opts
+ * @package ApiRator\Includes
+ */
 class Opts
 {
-
     private $access_token;
     private $parameters = [];
     private $method;
@@ -33,7 +36,7 @@ class Opts
                 $this->setParameter($res[1], $value);
             }
         } else {
-            if($this->logger){
+            if ($this->logger) {
                 $this->logger->warning('Set unknown variable: ' . $name);
             }
         }
@@ -46,13 +49,18 @@ class Opts
                 return $this->data[$res[1]]['value'];
             }
         } else {
-            if($this->logger){
+            if ($this->logger) {
                 $this->logger->warning('Get unknown variable: ' . $name);
             }
         }
         return null;
     }
 
+    /**
+     * @param string $v
+     *
+     * @return Opts
+     */
     public function setApiVersion($v)
     {
         return $this->setV($v);
@@ -66,10 +74,14 @@ class Opts
         return $this->v;
     }
 
-    public function getApiVersion(){
+    /**
+     * @return string
+     */
+    public function getApiVersion()
+    {
         return $this->getV();
     }
-    
+
     /**
      * @return string
      */
@@ -77,14 +89,22 @@ class Opts
     {
         return $this->access_token;
     }
-    
 
+    /**
+     * @param string $v
+     *
+     * @return $this
+     */
     public function setV($v)
     {
         $this->v = $v;
+
         return $this;
     }
 
+    /**
+     * @param string|array $params
+     */
     public function setRequiredParams($params)
     {
         if (is_array($params)) {
@@ -96,19 +116,22 @@ class Opts
         }
     }
 
+    /**
+     * @throws \Exception
+     */
     public function checkRequiredParams()
     {
         foreach ($this->parameters as $key => $param) {
             if (is_array($param)) {
                 if (isset($param['required']) && $param['required'] && !isset($param['value'])) {
                     $error = "not fill '" . $key . "' required parameter!";
-                    if($this->logger){
+                    if ($this->logger) {
                         $this->logger->critical($error);
                     }
                     throw new \Exception($error);
                 }
             } else {
-                if($this->logger){
+                if ($this->logger) {
                     $this->logger->warning("Wrong parameter: '" . $key . "', value: " . $param);
                 }
                 unset($this->parameters[$key]);
@@ -116,6 +139,9 @@ class Opts
         }
     }
 
+    /**
+     * @return array
+     */
     public function getParameters()
     {
         $parameters = array();
@@ -125,12 +151,24 @@ class Opts
         return $parameters;
     }
 
+    /**
+     * @param string $method
+     *
+     * @return $this
+     */
     public function setMethod($method)
     {
         $this->method = $method;
+
         return $this;
     }
 
+    /**
+     * @param string $name
+     * @param $value
+     *
+     * @return $this
+     */
     public function setParameter($name, $value)
     {
         if (is_array($value)) {
@@ -138,7 +176,7 @@ class Opts
                 $this->parameters[$name]['value'] = $value['value'];
             } else {
                 $this->parameters[$name]['value'] = $value;
-                if($this->logger){
+                if ($this->logger) {
                     $this->logger->info('Set parameter: ' . $name . ' as array, values: ' . serialize($value));
                 }
             }
@@ -148,17 +186,17 @@ class Opts
         } else {
             $this->parameters[$name]['value'] = $value;
         }
+
         return $this;
     }
 
     public function setParameters($param)
     {
-        if(
-            !is_array($param) 
+        if (!is_array($param)
             || (is_array($param[0]) && !isset($param[0]['value']))
             || !isset($param['value'])
-        ){
-            if($this->logger){
+        ) {
+            if ($this->logger) {
                 $this->logger->error('Please set valid parameters');
             }
             return $this;
@@ -167,9 +205,15 @@ class Opts
         return $this;
     }
 
+    /**
+     * @param string $access_token
+     *
+     * @return $this
+     */
     public function setAccessToken($access_token)
     {
         $this->access_token = $access_token;
+
         return $this;
     }
 
@@ -189,10 +233,16 @@ class Opts
         return $this->headers;
     }
 
+    /**
+     * @param string $name
+     * @param string $header
+     *
+     * @return $this
+     */
     public function addHeader($name, $header)
     {
         $this->headers[$name] = $header;
+
         return $this;
     }
-    
 }

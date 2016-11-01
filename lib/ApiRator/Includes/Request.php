@@ -2,10 +2,15 @@
 
 namespace ApiRator\Includes;
 
-
+/**
+ * Class Request
+ * @package ApiRator\Includes
+ */
 abstract class Request extends Opts
 {
-
+    /**
+     * @return bool
+     */
     public function execApi()
     {
         $this->checkRequiredParams();
@@ -22,7 +27,7 @@ abstract class Request extends Opts
 
         $headers = array_merge($headers, $this->getHeaders());
         $http_headers = [];
-        foreach ($headers as $key => $header){
+        foreach ($headers as $key => $header) {
             $http_headers[] = $key . ': ' . $header;
         }
 
@@ -32,7 +37,7 @@ abstract class Request extends Opts
             $this->logger->debug('with headers: ' . serialize($headers));
             $this->logger->debug("with parameters: " . serialize($parameters));
         }
-        
+
         $apiCurl = curl_init($url);
         curl_setopt($apiCurl, CURLOPT_POST, 1);
         curl_setopt($apiCurl, CURLOPT_HTTPHEADER, $http_headers);
@@ -67,11 +72,23 @@ abstract class Request extends Opts
         return $this->answerProcessing($apiContent);
     }
 
+    /**
+     * @return string
+     */
     abstract public function getResultApiUrl();
+
+    /**
+     * @param $content
+     * @return mixed
+     */
     abstract public function answerProcessing($content);
-    
-    public function handleParameters($parameters){
+
+    /**
+     * @param $parameters
+     * @return mixed
+     */
+    public function handleParameters($parameters)
+    {
         return $parameters;
     }
-
 }
