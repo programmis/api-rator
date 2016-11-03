@@ -94,6 +94,13 @@ abstract class Request extends Opts
     abstract public function answerProcessing($content);
 
     /**
+     * use it in getResultApiUrl
+     *
+     * @return string
+     */
+    abstract public function getApiVersion();
+
+    /**
      * @param $parameters
      * @return mixed
      */

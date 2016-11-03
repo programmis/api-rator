@@ -28,6 +28,9 @@ class RequestTest extends \PHPUnit_Framework_TestCase
             ->method('getMethod')
             ->will($this->returnValue('users.get'));
         $stub->expects($this->any())
+            ->method('getApiVersion')
+            ->will($this->returnValue('5.60'));
+        $stub->expects($this->any())
             ->method('answerProcessing')
             ->will($this->returnCallback(function ($argument) use (&$answer) {
                 $answer = json_decode($argument);
@@ -37,7 +40,6 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 
         /** @var Request $stub */
         $stub->arg_user_ids = '1';
-        $stub->setApiVersion('5.60');
         $result = $stub->execApi();
 
         $this->assertTrue($result, 'Check answer');

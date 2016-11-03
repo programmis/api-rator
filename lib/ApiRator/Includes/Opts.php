@@ -14,7 +14,6 @@ class Opts
     private $parameters = [];
     protected $logger;
     private $magic_arg;
-    private $v;
     private $headers = [];
     private $original_answer = '';
 
@@ -79,49 +78,11 @@ class Opts
     }
 
     /**
-     * @param string $v
-     *
-     * @return Opts
-     */
-    public function setApiVersion($v)
-    {
-        return $this->setV($v);
-    }
-
-    /**
-     * @return string
-     */
-    public function getV()
-    {
-        return $this->v;
-    }
-
-    /**
-     * @return string
-     */
-    public function getApiVersion()
-    {
-        return $this->getV();
-    }
-
-    /**
      * @return string
      */
     public function getAccessToken()
     {
         return $this->access_token;
-    }
-
-    /**
-     * @param string $v
-     *
-     * @return $this
-     */
-    public function setV($v)
-    {
-        $this->v = $v;
-
-        return $this;
     }
 
     /**
