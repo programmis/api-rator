@@ -53,4 +53,15 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         $this->assertContains('"response"', $stub->getOriginalAnswer(), 'Check contain "response" in original answer');
         $this->assertContains('"id":1', $stub->getOriginalAnswer(), 'Check contain "id":1 in original answer');
     }
+
+    public function testConstructor()
+    {
+        try {
+            $this->getMockForAbstractClass('ApiRator\Includes\Request', ['arg', (object)[]]);
+            $result = '';
+        } catch (\Exception $ex) {
+            $result = $ex->getMessage();
+        }
+        $this->assertContains('LoggerInterface', $result);
+    }
 }

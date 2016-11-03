@@ -19,12 +19,15 @@ class Opts
     /**
      * Opts constructor.
      * @param string $magic_arg
-     * @param LoggerInterface|null $loggerInterface
+     * @param LoggerInterface|null $logger
      */
-    public function __construct($magic_arg, LoggerInterface $loggerInterface = null)
+    public function __construct($magic_arg, $logger = null)
     {
         $this->magic_arg = $magic_arg;
-        $this->logger = $loggerInterface;
+        if ($logger && !($logger instanceof LoggerInterface)) {
+            throw new \Exception("Logger must by implemented from LoggerInterface");
+        }
+        $this->logger = $logger;
     }
 
     public function __set($name, $value)
