@@ -107,6 +107,7 @@ abstract class Request extends Opts
 
     /**
      * @param $parameters
+     *
      * @return mixed
      */
     public function handleParameters($parameters)
