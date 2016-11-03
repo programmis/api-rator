@@ -10,7 +10,6 @@ use Psr\Log\LoggerInterface;
  */
 class Opts
 {
-    private $access_token;
     private $parameters = [];
     protected $logger;
     private $magic_arg;
@@ -75,14 +74,6 @@ class Opts
         $this->original_answer = $original_answer;
 
         return $this;
-    }
-
-    /**
-     * @return string
-     */
-    public function getAccessToken()
-    {
-        return $this->access_token;
     }
 
     /**
@@ -192,18 +183,6 @@ class Opts
             return $this;
         }
         $this->parameters = $params;
-
-        return $this;
-    }
-
-    /**
-     * @param string $access_token
-     *
-     * @return $this
-     */
-    public function setAccessToken($access_token)
-    {
-        $this->access_token = $access_token;
 
         return $this;
     }

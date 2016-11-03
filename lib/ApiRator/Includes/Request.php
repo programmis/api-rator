@@ -101,6 +101,11 @@ abstract class Request extends Opts
     abstract public function getApiVersion();
 
     /**
+     * @return string
+     */
+    abstract public function getAccessToken();
+
+    /**
      * @param $parameters
      * @return mixed
      */
