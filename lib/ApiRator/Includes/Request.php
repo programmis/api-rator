@@ -69,6 +69,8 @@ abstract class Request extends Opts
             $this->logger->debug("execApi result: " . $apiContent);
         }
 
+        $this->setOriginalAnswer($apiContent);
+
         return $this->answerProcessing($apiContent);
     }
 
@@ -78,8 +80,16 @@ abstract class Request extends Opts
     abstract public function getResultApiUrl();
 
     /**
+     * use it in getResultApiUrl
+     *
+     * @return string
+     */
+    abstract public function getMethod();
+
+    /**
      * @param $content
-     * @return mixed
+     *
+     * @return bool
      */
     abstract public function answerProcessing($content);
 

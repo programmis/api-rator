@@ -12,11 +12,11 @@ class Opts
 {
     private $access_token;
     private $parameters = [];
-    private $method;
     protected $logger;
     private $magic_arg;
     private $v;
     private $headers = [];
+    private $original_answer = '';
 
     /**
      * Opts constructor.
@@ -54,6 +54,28 @@ class Opts
             }
         }
         return null;
+    }
+
+    /**
+     * original answer after execApi
+     *
+     * @return string
+     */
+    public function getOriginalAnswer()
+    {
+        return $this->original_answer;
+    }
+
+    /**
+     * @param string $original_answer
+     *
+     * @return Opts
+     */
+    protected function setOriginalAnswer($original_answer)
+    {
+        $this->original_answer = $original_answer;
+
+        return $this;
     }
 
     /**
@@ -163,18 +185,6 @@ class Opts
     }
 
     /**
-     * @param string $method
-     *
-     * @return $this
-     */
-    public function setMethod($method)
-    {
-        $this->method = $method;
-
-        return $this;
-    }
-
-    /**
      * @param string $name
      * @param array|string $value maybe ['value' => 'test', 'require' => true]
      *
@@ -235,14 +245,6 @@ class Opts
         $this->access_token = $access_token;
 
         return $this;
-    }
-
-    /**
-     * @return string
-     */
-    public function getMethod()
-    {
-        return $this->method;
     }
 
     /**

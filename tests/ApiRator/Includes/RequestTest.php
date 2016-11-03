@@ -25,6 +25,9 @@ class RequestTest extends \PHPUnit_Framework_TestCase
                 . '?v=' . $stub->getApiVersion();
             }));
         $stub->expects($this->any())
+            ->method('getMethod')
+            ->will($this->returnValue('users.get'));
+        $stub->expects($this->any())
             ->method('answerProcessing')
             ->will($this->returnCallback(function ($argument) use (&$answer) {
                 $answer = json_decode($argument);
@@ -35,7 +38,6 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         /** @var Request $stub */
         $stub->arg_user_ids = '1';
         $stub->setApiVersion('5.60');
-        $stub->setMethod('users.get');
         $result = $stub->execApi();
 
         $this->assertTrue($result, 'Check answer');
@@ -45,5 +47,8 @@ class RequestTest extends \PHPUnit_Framework_TestCase
             $answer->response[0],
             $answer->response[0]->id
         ), 'Check answer params');
+
+        $this->assertContains('"response"', $stub->getOriginalAnswer(), 'Check contain "response" in original answer');
+        $this->assertContains('"id":1', $stub->getOriginalAnswer(), 'Check contain "id":1 in original answer');
     }
 }
