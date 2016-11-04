@@ -15,6 +15,54 @@ class RequestTest extends \PHPUnit_Framework_TestCase
     public function testExecApiOnVk()
     {
         $answer = null;
+
+        $stub = $this->prepareRequestStub($answer);
+
+        $stub->arg_user_ids = '1';
+        $result             = $stub->execApi();
+
+        $this->assertTrue($result, 'Check answer');
+
+        $this->assertTrue(isset(
+            $answer->response,
+            $answer->response[0],
+            $answer->response[0]->id
+        ), 'Check answer params');
+
+        $this->assertContains('"response"', $stub->getOriginalAnswer(), 'Check contain "response" in original answer');
+        $this->assertContains('"id":1', $stub->getOriginalAnswer(), 'Check contain "id":1 in original answer');
+    }
+
+    public function testCheckRequiredParams()
+    {
+        try {
+            $stub = $this->prepareRequestStub();
+            $stub->setRequiredParams('user_ids');
+            $stub->execApi();
+            $result = '';
+        } catch (\Exception $ex) {
+            $result = $ex->getMessage();
+        }
+
+        $this->assertContains('user_ids', $result, 'Check required params');
+    }
+
+    public function testConstructor()
+    {
+        try {
+            $this->getMockForAbstractClass('ApiRator\Includes\Request', ['arg', (object)[]]);
+            $result = '';
+        } catch (\Exception $ex) {
+            $result = $ex->getMessage();
+        }
+        $this->assertContains('LoggerInterface', $result);
+    }
+
+    /**
+     * @return Request
+     */
+    private function prepareRequestStub(&$answer = null)
+    {
         $stub = $this->getMockForAbstractClass('ApiRator\Includes\Request', ['arg']);
         $stub->expects($this->any())
             ->method('getResultApiUrl')
@@ -38,30 +86,6 @@ class RequestTest extends \PHPUnit_Framework_TestCase
                 return true;
             }));
 
-        /** @var Request $stub */
-        $stub->arg_user_ids = '1';
-        $result = $stub->execApi();
-
-        $this->assertTrue($result, 'Check answer');
-
-        $this->assertTrue(isset(
-            $answer->response,
-            $answer->response[0],
-            $answer->response[0]->id
-        ), 'Check answer params');
-
-        $this->assertContains('"response"', $stub->getOriginalAnswer(), 'Check contain "response" in original answer');
-        $this->assertContains('"id":1', $stub->getOriginalAnswer(), 'Check contain "id":1 in original answer');
-    }
-
-    public function testConstructor()
-    {
-        try {
-            $this->getMockForAbstractClass('ApiRator\Includes\Request', ['arg', (object)[]]);
-            $result = '';
-        } catch (\Exception $ex) {
-            $result = $ex->getMessage();
-        }
-        $this->assertContains('LoggerInterface', $result);
+        return $stub;
     }
 }
