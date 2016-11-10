@@ -15,6 +15,25 @@ class Opts
     private $magic_arg;
     private $headers = [];
     private $original_answer = '';
+    private $request_timeout = 30;
+
+    /**
+     * @return int
+     */
+    public function getRequestTimeout()
+    {
+        return $this->request_timeout;
+    }
+
+    /**
+     * @param int $request_timeout
+     */
+    public function setRequestTimeout($request_timeout)
+    {
+        $this->request_timeout = $request_timeout;
+
+        return $this;
+    }
 
     /**
      * Opts constructor.
@@ -30,6 +49,10 @@ class Opts
         $this->logger = $logger;
     }
 
+    /**
+     * @param string $name
+     * @param $value
+     */
     public function __set($name, $value)
     {
         if (preg_match('|' . $this->magic_arg . '_(.*)|', $name, $res)) {
@@ -43,6 +66,11 @@ class Opts
         }
     }
 
+    /**
+     * @param string $name
+     *
+     * @return null|string
+     */
     public function __get($name)
     {
         if (preg_match('|' . $this->magic_arg . '_(.*)|', $name, $res)) {

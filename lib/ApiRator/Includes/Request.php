@@ -2,12 +2,101 @@
 
 namespace ApiRator\Includes;
 
+use CURLFile;
+
 /**
  * Class Request
+ *
  * @package ApiRator\Includes
  */
 abstract class Request extends Opts
 {
+    /**
+     * @param string $url
+     * @param array  $parameters
+     *
+     * @return bool|string
+     */
+    private function request($url, $parameters)
+    {
+        $http_headers = $this->prepareHeaders();
+        if ($this->logger) {
+            $this->logger->debug("with parameters: " . serialize($parameters));
+        }
+        $apiCurl = curl_init($url);
+        curl_setopt($apiCurl, CURLOPT_POST, 1);
+        curl_setopt($apiCurl, CURLOPT_TIMEOUT, $this->getRequestTimeout());
+        curl_setopt($apiCurl, CURLOPT_HTTPHEADER, $http_headers);
+        curl_setopt($apiCurl, CURLOPT_POSTFIELDS, $parameters);
+        curl_setopt($apiCurl, CURLOPT_FOLLOWLOCATION, 1);
+        curl_setopt($apiCurl, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($apiCurl, CURLOPT_SSL_VERIFYPEER, 0);
+        curl_setopt($apiCurl, CURLOPT_SSL_VERIFYHOST, 0);
+        $apiContent = curl_exec($apiCurl);
+
+        if ($apiContent === false) {
+            if ($this->logger) {
+                $this->logger->error("CURL returned error: " . curl_error($apiCurl));
+            }
+            curl_close($apiCurl);
+
+            return false;
+        }
+
+        curl_close($apiCurl);
+
+        if (!$apiContent) {
+            if ($this->logger) {
+                $this->logger->debug("CURL content is empty");
+            }
+
+            return false;
+        }
+
+        return $apiContent;
+    }
+
+    /**
+     * @param string $upload_url
+     * @param array  $files path to file
+     *
+     * @return bool
+     */
+    public function uploadFiles($upload_url, $files)
+    {
+        $curl_files = [];
+        foreach ($files as $key => $data) {
+            $path = realpath($data);
+            if ($path) {
+                $curl_files['file' . ($key + 1)] = (
+                (class_exists('CURLFile', false)) ?
+                    new CURLFile(realpath($data)) :
+                    '@' . realpath($data)
+                );
+            }
+        }
+        if (!$curl_files) {
+            $this->logger->error('Empty curl_files array');
+
+            return false;
+        }
+
+        if ($this->logger) {
+            $this->logger->debug("uploadFiles to: " . $upload_url);
+        }
+
+        $vkContent = $this->request($upload_url, $curl_files);
+        if (!$vkContent) {
+            return false;
+        }
+
+        $this->logger->debug("execUrl result: " . $vkContent);
+
+        $this->setOriginalAnswer($vkContent);
+
+        return $this->answerProcessing($vkContent);
+    }
+
     /**
      * @return bool
      */
@@ -22,46 +111,10 @@ abstract class Request extends Opts
         }
 
         $parameters = $this->getParameters();
-
-        $headers['Content-type'] = 'multipart/form-data';
-
-        $headers = array_merge($headers, $this->getHeaders());
-        $http_headers = [];
-        foreach ($headers as $key => $header) {
-            $http_headers[] = $key . ': ' . $header;
-        }
-
         $parameters = $this->handleParameters($parameters);
 
-        if ($this->logger) {
-            $this->logger->debug('with headers: ' . serialize($headers));
-            $this->logger->debug("with parameters: " . serialize($parameters));
-        }
-
-        $apiCurl = curl_init($url);
-        curl_setopt($apiCurl, CURLOPT_POST, 1);
-        curl_setopt($apiCurl, CURLOPT_HTTPHEADER, $http_headers);
-        curl_setopt($apiCurl, CURLOPT_POSTFIELDS, $parameters);
-        curl_setopt($apiCurl, CURLOPT_FOLLOWLOCATION, 1);
-        curl_setopt($apiCurl, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($apiCurl, CURLOPT_SSL_VERIFYPEER, 0);
-        curl_setopt($apiCurl, CURLOPT_SSL_VERIFYHOST, 0);
-        $apiContent = curl_exec($apiCurl);
-
-        if ($apiContent === false) {
-            if ($this->logger) {
-                $this->logger->error(curl_error($apiCurl));
-            }
-            curl_close($apiCurl);
-            return false;
-        }
-
-        curl_close($apiCurl);
-
+        $apiContent = $this->request($url, $parameters);
         if (!$apiContent) {
-            if ($this->logger) {
-                $this->logger->debug("apiContent is empty");
-            }
             return false;
         }
 
@@ -113,5 +166,27 @@ abstract class Request extends Opts
     public function handleParameters($parameters)
     {
         return $parameters;
+    }
+
+    /**
+     * @return array
+     */
+    private function prepareHeaders()
+    {
+        $headers['Content-type'] = 'multipart/form-data';
+
+        $headers      = array_merge($headers, $this->getHeaders());
+        $http_headers = [];
+        foreach ($headers as $key => $header) {
+            $http_headers[] = $key . ': ' . $header;
+        }
+
+        if ($this->logger) {
+            $this->logger->debug('with headers: ' . serialize($headers));
+
+            return $http_headers;
+        }
+
+        return $http_headers;
     }
 }
