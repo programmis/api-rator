@@ -6,6 +6,7 @@ use Psr\Log\LoggerInterface;
 
 /**
  * Class Opts
+ *
  * @package ApiRator\Includes
  */
 class Opts
@@ -37,21 +38,24 @@ class Opts
 
     /**
      * Opts constructor.
-     * @param string $magic_arg
+     *
+     * @param string               $magic_arg
      * @param LoggerInterface|null $logger
      */
     public function __construct($magic_arg, $logger = null)
     {
         $this->magic_arg = $magic_arg;
-        if ($logger && !($logger instanceof LoggerInterface)) {
-            throw new \Exception("Logger must by implemented from LoggerInterface");
+        if ($logger) {
+            if (!($logger instanceof LoggerInterface)) {
+                throw new \Exception("Logger must by implemented from LoggerInterface");
+            }
+            self::$logger = $logger;
         }
-        self::$logger = $logger;
     }
 
     /**
      * @param string $name
-     * @param $value
+     * @param        $value
      */
     public function __set($name, $value)
     {
@@ -82,6 +86,7 @@ class Opts
                 self::$logger->warning('Get unknown variable: ' . $name);
             }
         }
+
         return null;
     }
 
@@ -164,11 +169,12 @@ class Opts
         foreach ($this->parameters as $key => $param) {
             $parameters[$key] = $param['value'];
         }
+
         return $parameters;
     }
 
     /**
-     * @param string $name
+     * @param string       $name
      * @param array|string $value maybe ['value' => 'test', 'require' => true]
      *
      * @return $this
@@ -211,6 +217,7 @@ class Opts
             if (self::$logger) {
                 self::$logger->error('Please set valid parameters');
             }
+
             return $this;
         }
         $this->parameters = $params;
