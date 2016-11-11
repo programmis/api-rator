@@ -20,9 +20,13 @@ abstract class Request extends Opts
     private function request($url, $parameters)
     {
         $http_headers = $this->prepareHeaders();
-        if ($this->logger) {
-            $this->logger->debug("with parameters: " . serialize($parameters));
+        if (self::$logger) {
+            self::$logger->debug("with parameters: " . serialize($parameters));
         }
+        if (is_array($parameters)) {
+            $parameters = http_build_query($parameters);
+        }
+
         $apiCurl = curl_init($url);
         curl_setopt($apiCurl, CURLOPT_POST, 1);
         curl_setopt($apiCurl, CURLOPT_TIMEOUT, $this->getRequestTimeout());
@@ -35,8 +39,8 @@ abstract class Request extends Opts
         $apiContent = curl_exec($apiCurl);
 
         if ($apiContent === false) {
-            if ($this->logger) {
-                $this->logger->error("CURL returned error: " . curl_error($apiCurl));
+            if (self::$logger) {
+                self::$logger->error("CURL returned error: " . curl_error($apiCurl));
             }
             curl_close($apiCurl);
 
@@ -46,8 +50,8 @@ abstract class Request extends Opts
         curl_close($apiCurl);
 
         if (!$apiContent) {
-            if ($this->logger) {
-                $this->logger->debug("CURL content is empty");
+            if (self::$logger) {
+                self::$logger->debug("CURL content is empty");
             }
 
             return false;
@@ -76,13 +80,13 @@ abstract class Request extends Opts
             }
         }
         if (!$curl_files) {
-            $this->logger->error('Empty curl_files array');
+            self::$logger->error('Empty curl_files array');
 
             return false;
         }
 
-        if ($this->logger) {
-            $this->logger->debug("uploadFiles to: " . $upload_url);
+        if (self::$logger) {
+            self::$logger->debug("uploadFiles to: " . $upload_url);
         }
 
         $vkContent = $this->request($upload_url, $curl_files);
@@ -90,7 +94,7 @@ abstract class Request extends Opts
             return false;
         }
 
-        $this->logger->debug("execUrl result: " . $vkContent);
+        self::$logger->debug("execUrl result: " . $vkContent);
 
         $this->setOriginalAnswer($vkContent);
 
@@ -106,8 +110,8 @@ abstract class Request extends Opts
 
         $url = $this->getResultApiUrl();
 
-        if ($this->logger) {
-            $this->logger->debug("execApi: " . $url);
+        if (self::$logger) {
+            self::$logger->debug("execApi: " . $url);
         }
 
         $parameters = $this->getParameters();
@@ -118,8 +122,8 @@ abstract class Request extends Opts
             return false;
         }
 
-        if ($this->logger) {
-            $this->logger->debug("execApi result: " . $apiContent);
+        if (self::$logger) {
+            self::$logger->debug("execApi result: " . $apiContent);
         }
 
         $this->setOriginalAnswer($apiContent);
@@ -181,8 +185,8 @@ abstract class Request extends Opts
             $http_headers[] = $key . ': ' . $header;
         }
 
-        if ($this->logger) {
-            $this->logger->debug('with headers: ' . serialize($headers));
+        if (self::$logger) {
+            self::$logger->debug('with headers: ' . serialize($headers));
 
             return $http_headers;
         }

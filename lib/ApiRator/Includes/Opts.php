@@ -11,7 +11,7 @@ use Psr\Log\LoggerInterface;
 class Opts
 {
     private $parameters = [];
-    protected $logger;
+    protected static $logger;
     private $magic_arg;
     private $headers = [];
     private $original_answer = '';
@@ -46,7 +46,7 @@ class Opts
         if ($logger && !($logger instanceof LoggerInterface)) {
             throw new \Exception("Logger must by implemented from LoggerInterface");
         }
-        $this->logger = $logger;
+        self::$logger = $logger;
     }
 
     /**
@@ -60,8 +60,8 @@ class Opts
                 $this->setParameter($res[1], $value);
             }
         } else {
-            if ($this->logger) {
-                $this->logger->warning('Set unknown variable: ' . $name);
+            if (self::$logger) {
+                self::$logger->warning('Set unknown variable: ' . $name);
             }
         }
     }
@@ -78,8 +78,8 @@ class Opts
                 return $this->getParameter($res[1]);
             }
         } else {
-            if ($this->logger) {
-                $this->logger->warning('Get unknown variable: ' . $name);
+            if (self::$logger) {
+                self::$logger->warning('Get unknown variable: ' . $name);
             }
         }
         return null;
@@ -130,14 +130,14 @@ class Opts
             if (is_array($param)) {
                 if (isset($param['required']) && $param['required'] && !isset($param['value'])) {
                     $error = "not fill '" . $key . "' required parameter!";
-                    if ($this->logger) {
-                        $this->logger->critical($error);
+                    if (self::$logger) {
+                        self::$logger->critical($error);
                     }
                     throw new \Exception($error);
                 }
             } else {
-                if ($this->logger) {
-                    $this->logger->warning("Wrong parameter: '" . $key . "', value: " . $param);
+                if (self::$logger) {
+                    self::$logger->warning("Wrong parameter: '" . $key . "', value: " . $param);
                 }
                 unset($this->parameters[$key]);
             }
@@ -180,8 +180,8 @@ class Opts
                 $this->parameters[$name]['value'] = $value['value'];
             } elseif (!isset($value['required'])) {
                 $this->parameters[$name]['value'] = $value;
-                if ($this->logger) {
-                    $this->logger->info('Set parameter: ' . $name . ' as array, values: ' . serialize($value));
+                if (self::$logger) {
+                    self::$logger->info('Set parameter: ' . $name . ' as array, values: ' . serialize($value));
                 }
             }
             if (isset($value['required'])) {
@@ -208,8 +208,8 @@ class Opts
                 && !isset($params[key($params)]['required'])
             )
         ) {
-            if ($this->logger) {
-                $this->logger->error('Please set valid parameters');
+            if (self::$logger) {
+                self::$logger->error('Please set valid parameters');
             }
             return $this;
         }
