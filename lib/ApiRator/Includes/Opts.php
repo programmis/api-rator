@@ -19,6 +19,24 @@ class Opts
     private $request_timeout = 30;
 
     /**
+     * @param LoggerInterface $logger
+     *
+     * @throws \Exception
+     */
+    public static function setLogger($logger)
+    {
+        if ($logger) {
+            if (!is_object($logger)) {
+                $logger = new $logger();
+            }
+            if (!($logger instanceof LoggerInterface)) {
+                throw new \Exception("Logger must by implemented from LoggerInterface");
+            }
+            self::$logger = $logger;
+        }
+    }
+
+    /**
      * @return int
      */
     public function getRequestTimeout()
@@ -45,12 +63,7 @@ class Opts
     public function __construct($magic_arg, $logger = null)
     {
         $this->magic_arg = $magic_arg;
-        if ($logger) {
-            if (!($logger instanceof LoggerInterface)) {
-                throw new \Exception("Logger must by implemented from LoggerInterface");
-            }
-            self::$logger = $logger;
-        }
+        self::setLogger($logger);
     }
 
     /**
