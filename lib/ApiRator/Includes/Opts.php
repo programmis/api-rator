@@ -12,6 +12,7 @@ use Psr\Log\LoggerInterface;
 class Opts
 {
     private $parameters = [];
+    /** @var LoggerInterface */
     protected static $logger;
     private $magic_arg;
     private $headers = [];
@@ -222,10 +223,6 @@ class Opts
     {
         if (!is_array($params)
             || !isset($params[key($params)])
-            || (
-                !isset($params[key($params)]['value'])
-                && !isset($params[key($params)]['required'])
-            )
         ) {
             if (self::$logger) {
                 self::$logger->error('Please set valid parameters');
@@ -233,7 +230,26 @@ class Opts
 
             return $this;
         }
-        $this->parameters = $params;
+        $r_params = [];
+
+        foreach ($params as $key => $param) {
+            if (is_array($param)) {
+                if (isset($param['value']) || isset($param['required'])) {
+                    if (isset($param['value'])) {
+                        $r_params[$key]['value'] = $param['value'];
+                    }
+                    if (isset($param['required'])) {
+                        $r_params[$key]['required'] = $param['required'];
+                    }
+                } elseif ($param) {
+                    $r_params[$key]['value'] = $param;
+                }
+            } else {
+                $r_params[$key]['value'] = $param;
+            }
+        }
+
+        $this->parameters = $r_params;
 
         return $this;
     }
