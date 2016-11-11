@@ -23,9 +23,6 @@ abstract class Request extends Opts
         if (self::$logger) {
             self::$logger->debug("with parameters: " . serialize($parameters));
         }
-        if (is_array($parameters)) {
-            $parameters = http_build_query($parameters);
-        }
 
         $apiCurl = curl_init($url);
         curl_setopt($apiCurl, CURLOPT_POST, 1);
