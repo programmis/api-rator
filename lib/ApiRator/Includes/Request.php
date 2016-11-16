@@ -27,12 +27,17 @@ abstract class Request extends Opts
         $apiCurl = curl_init($url);
         curl_setopt($apiCurl, CURLOPT_POST, 1);
         curl_setopt($apiCurl, CURLOPT_TIMEOUT, $this->getRequestTimeout());
-        curl_setopt($apiCurl, CURLOPT_HTTPHEADER, $http_headers);
-        curl_setopt($apiCurl, CURLOPT_POSTFIELDS, $parameters);
+        if ($http_headers) {
+            curl_setopt($apiCurl, CURLOPT_HTTPHEADER, $http_headers);
+            curl_setopt($apiCurl, CURLOPT_POSTFIELDS, $parameters);
+        } else {
+            curl_setopt($apiCurl, CURLOPT_POSTFIELDS, http_build_query($parameters));
+        }
         curl_setopt($apiCurl, CURLOPT_FOLLOWLOCATION, 1);
         curl_setopt($apiCurl, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($apiCurl, CURLOPT_SSL_VERIFYPEER, 0);
         curl_setopt($apiCurl, CURLOPT_SSL_VERIFYHOST, 0);
+        curl_setopt($apiCurl, CURLOPT_VERBOSE, 1);
         $apiContent = curl_exec($apiCurl);
 
         if ($apiContent === false) {
@@ -172,7 +177,7 @@ abstract class Request extends Opts
     /**
      * @return array
      */
-    private function prepareHeaders()
+    public function prepareHeaders()
     {
         $headers['Content-type'] = 'multipart/form-data';
 
