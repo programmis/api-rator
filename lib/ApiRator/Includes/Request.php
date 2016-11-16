@@ -37,7 +37,6 @@ abstract class Request extends Opts
         curl_setopt($apiCurl, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($apiCurl, CURLOPT_SSL_VERIFYPEER, 0);
         curl_setopt($apiCurl, CURLOPT_SSL_VERIFYHOST, 0);
-        curl_setopt($apiCurl, CURLOPT_VERBOSE, 1);
         $apiContent = curl_exec($apiCurl);
 
         if ($apiContent === false) {
