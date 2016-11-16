@@ -68,13 +68,13 @@ abstract class Request extends Opts
      *
      * @return bool
      */
-    public function uploadFiles($upload_url, $files)
+    public function uploadFiles($upload_url, $files, $file_name = 'file')
     {
         $curl_files = [];
         foreach ($files as $key => $data) {
             $path = realpath($data);
             if ($path) {
-                $curl_files['file' . ($key + 1)] = (
+                $curl_files[$file_name . ($key + 1)] = (
                 (class_exists('CURLFile', false)) ?
                     new CURLFile(realpath($data)) :
                     '@' . realpath($data)
