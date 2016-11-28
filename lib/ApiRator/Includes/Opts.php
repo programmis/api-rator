@@ -19,15 +19,15 @@ class Opts
     private $original_answer = '';
     private $request_timeout = 30;
 
-    private $beforeRequestCallback = [];
-    private $afterRequestCallback = [];
+    private static $beforeRequestCallback = [];
+    private static $afterRequestCallback = [];
 
     /**
      * @return array
      */
     public function getBeforeRequestCallback()
     {
-        return $this->beforeRequestCallback;
+        return self::$beforeRequestCallback;
     }
 
     /**
@@ -35,7 +35,7 @@ class Opts
      */
     public function getAfterRequestCallback()
     {
-        return $this->afterRequestCallback;
+        return self::$afterRequestCallback;
     }
 
     /**
@@ -83,7 +83,7 @@ class Opts
     public function setBeforeRequestCallback($object, $method)
     {
         $this->checkObjectMethod($object, $method);
-        $this->beforeRequestCallback = [
+        self::$beforeRequestCallback = [
             'object' => $object,
             'method' => $method
         ];
@@ -96,7 +96,7 @@ class Opts
     public function setAfterRequestCallback($object, $method)
     {
         $this->checkObjectMethod($object, $method);
-        $this->afterRequestCallback = [
+        self::$afterRequestCallback = [
             'object' => $object,
             'method' => $method
         ];
