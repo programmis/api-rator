@@ -44,7 +44,7 @@ class Opts
      *
      * @throws \Exception
      */
-    private function checkObjectMethod($object_or_function, $method = '')
+    private static function checkObjectMethod($object_or_function, $method = '')
     {
         if (is_object($object_or_function)) {
             if (!method_exists($object_or_function, $method)) {
@@ -82,9 +82,9 @@ class Opts
      * @param        $object_or_function
      * @param string $method
      */
-    public function setBeforeRequestCallback($object_or_function, $method = '')
+    public static function setBeforeRequestCallback($object_or_function, $method = '')
     {
-        $this->checkObjectMethod($object_or_function, $method);
+        self::checkObjectMethod($object_or_function, $method);
         if (is_object($object_or_function)) {
             self::$beforeRequestCallback = [
                 'object' => $object_or_function,
@@ -101,9 +101,9 @@ class Opts
      * @param        $object_or_function
      * @param string $method
      */
-    public function setAfterRequestCallback($object_or_function, $method = '')
+    public static function setAfterRequestCallback($object_or_function, $method = '')
     {
-        $this->checkObjectMethod($object_or_function, $method);
+        self::checkObjectMethod($object_or_function, $method);
         if (is_object($object_or_function)) {
             self::$afterRequestCallback = [
                 'object' => $object_or_function,
