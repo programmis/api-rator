@@ -19,6 +19,89 @@ class Opts
     private $original_answer = '';
     private $request_timeout = 30;
 
+    private $beforeRequestCallback = [];
+    private $afterRequestCallback = [];
+
+    /**
+     * @return array
+     */
+    public function getBeforeRequestCallback()
+    {
+        return $this->beforeRequestCallback;
+    }
+
+    /**
+     * @return array
+     */
+    public function getAfterRequestCallback()
+    {
+        return $this->afterRequestCallback;
+    }
+
+    /**
+     * @param        $object
+     * @param string $method
+     *
+     * @throws \Exception
+     */
+    private function checkObjectMethod($object, $method)
+    {
+        if (!is_object($object)) {
+            $error = 'first param is not object';
+            if (self::$logger) {
+                self::$logger->critical($error);
+            }
+            throw new \Exception($error);
+        }
+        if (!method_exists($object, $method)) {
+            $error = "method $method is not exist";
+            if (self::$logger) {
+                self::$logger->critical($error);
+            }
+            throw new \Exception($error);
+        }
+    }
+
+    /**
+     * @param array $callbackType
+     */
+    protected function execCallback($callbackType)
+    {
+        if (!isset($callbackType['object'], $callbackType['method'])) {
+            return;
+        }
+        $object = $callbackType['object'];
+        $method = $callbackType['method'];
+
+        $object->$method();
+    }
+
+    /**
+     * @param        $object
+     * @param string $method
+     */
+    public function setBeforeRequestCallback($object, $method)
+    {
+        $this->checkObjectMethod($object, $method);
+        $this->beforeRequestCallback = [
+            'object' => $object,
+            'method' => $method
+        ];
+    }
+
+    /**
+     * @param        $object
+     * @param string $method
+     */
+    public function setAfterRequestCallback($object, $method)
+    {
+        $this->checkObjectMethod($object, $method);
+        $this->afterRequestCallback = [
+            'object' => $object,
+            'method' => $method
+        ];
+    }
+
     /**
      * @param LoggerInterface $logger
      *

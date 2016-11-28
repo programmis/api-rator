@@ -37,7 +37,10 @@ abstract class Request extends Opts
         curl_setopt($apiCurl, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($apiCurl, CURLOPT_SSL_VERIFYPEER, 0);
         curl_setopt($apiCurl, CURLOPT_SSL_VERIFYHOST, 0);
+
+        $this->execCallback($this->getBeforeRequestCallback());
         $apiContent = curl_exec($apiCurl);
+        $this->execCallback($this->getAfterRequestCallback());
 
         if ($apiContent === false) {
             if (self::$logger) {
