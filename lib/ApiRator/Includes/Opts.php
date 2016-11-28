@@ -39,22 +39,23 @@ class Opts
     }
 
     /**
-     * @param        $object
+     * @param        $object_or_function
      * @param string $method
      *
      * @throws \Exception
      */
-    private function checkObjectMethod($object, $method)
+    private function checkObjectMethod($object_or_function, $method = '')
     {
-        if (!is_object($object)) {
-            $error = 'first param is not object';
-            if (self::$logger) {
-                self::$logger->critical($error);
+        if (is_object($object_or_function)) {
+            if (!method_exists($object_or_function, $method)) {
+                $error = "method $method is not exist";
+                if (self::$logger) {
+                    self::$logger->critical($error);
+                }
+                throw new \Exception($error);
             }
-            throw new \Exception($error);
-        }
-        if (!method_exists($object, $method)) {
-            $error = "method $method is not exist";
+        } elseif (!is_callable($object_or_function)) {
+            $error = "first param must be object or function";
             if (self::$logger) {
                 self::$logger->critical($error);
             }
@@ -67,39 +68,52 @@ class Opts
      */
     protected function execCallback($callbackType)
     {
-        if (!isset($callbackType['object'], $callbackType['method'])) {
-            return;
+        if (isset($callbackType['object'], $callbackType['method'])) {
+            $object = $callbackType['object'];
+            $method = $callbackType['method'];
+            $object->$method();
+        } else {
+            $function = $callbackType['function'];
+            $function();
         }
-        $object = $callbackType['object'];
-        $method = $callbackType['method'];
-
-        $object->$method();
     }
 
     /**
-     * @param        $object
+     * @param        $object_or_function
      * @param string $method
      */
-    public function setBeforeRequestCallback($object, $method)
+    public function setBeforeRequestCallback($object_or_function, $method = '')
     {
-        $this->checkObjectMethod($object, $method);
-        self::$beforeRequestCallback = [
-            'object' => $object,
-            'method' => $method
-        ];
+        $this->checkObjectMethod($object_or_function, $method);
+        if (is_object($object_or_function)) {
+            self::$beforeRequestCallback = [
+                'object' => $object_or_function,
+                'method' => $method
+            ];
+        } else {
+            self::$beforeRequestCallback = [
+                'function' => $object_or_function
+            ];
+        }
     }
 
     /**
-     * @param        $object
+     * @param        $object_or_function
      * @param string $method
      */
-    public function setAfterRequestCallback($object, $method)
+    public function setAfterRequestCallback($object_or_function, $method = '')
     {
-        $this->checkObjectMethod($object, $method);
-        self::$afterRequestCallback = [
-            'object' => $object,
-            'method' => $method
-        ];
+        $this->checkObjectMethod($object_or_function, $method);
+        if (is_object($object_or_function)) {
+            self::$afterRequestCallback = [
+                'object' => $object_or_function,
+                'method' => $method
+            ];
+        } else {
+            self::$afterRequestCallback = [
+                'function' => $object_or_function
+            ];
+        }
     }
 
     /**
