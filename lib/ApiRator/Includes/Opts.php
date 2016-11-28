@@ -72,7 +72,7 @@ class Opts
             $object = $callbackType['object'];
             $method = $callbackType['method'];
             $object->$method();
-        } else {
+        } elseif (isset($callbackType['function'])) {
             $function = $callbackType['function'];
             $function();
         }
