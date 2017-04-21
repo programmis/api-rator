@@ -64,17 +64,18 @@ class Opts
     }
 
     /**
-     * @param array $callbackType
+     * @param array  $callbackType
+     * @param string $access_token
      */
-    protected function execCallback($callbackType)
+    protected function execCallback($callbackType, $access_token = '')
     {
         if (isset($callbackType['object'], $callbackType['method'])) {
             $object = $callbackType['object'];
             $method = $callbackType['method'];
-            $object->$method();
+            $object->$method($access_token);
         } elseif (isset($callbackType['function'])) {
             $function = $callbackType['function'];
-            $function();
+            $function($access_token);
         }
     }
 
@@ -276,7 +277,7 @@ class Opts
      */
     public function getParameters()
     {
-        $parameters = array();
+        $parameters = [];
         foreach ($this->parameters as $key => $param) {
             $parameters[$key] = $param['value'];
         }
