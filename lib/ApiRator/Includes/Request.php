@@ -11,9 +11,15 @@ use CURLFile;
  */
 abstract class Request extends Opts
 {
+    const METHOD_POST = 'POST';
+    const METHOD_GET = 'GET';
+
+    /** @var string */
+    private $method = 'POST';
+
     /**
      * @param string $url
-     * @param array  $parameters
+     * @param array $parameters
      *
      * @return bool|string
      */
@@ -25,12 +31,16 @@ abstract class Request extends Opts
         }
 
         $apiCurl = curl_init($url);
-        curl_setopt($apiCurl, CURLOPT_POST, 1);
+        if ($this->method == self::METHOD_POST) {
+            curl_setopt($apiCurl, CURLOPT_POST, 1);
+        }
         curl_setopt($apiCurl, CURLOPT_TIMEOUT, $this->getRequestTimeout());
         if ($http_headers) {
             curl_setopt($apiCurl, CURLOPT_HTTPHEADER, $http_headers);
-            curl_setopt($apiCurl, CURLOPT_POSTFIELDS, $parameters);
-        } else {
+            if ($parameters) {
+                curl_setopt($apiCurl, CURLOPT_POSTFIELDS, $parameters);
+            }
+        } else if ($parameters) {
             curl_setopt($apiCurl, CURLOPT_POSTFIELDS, http_build_query($parameters));
         }
         curl_setopt($apiCurl, CURLOPT_FOLLOWLOCATION, 1);
@@ -71,8 +81,20 @@ abstract class Request extends Opts
     }
 
     /**
+     * @param string $method self::METHOD_ constants
+     *
+     * @return $this
+     */
+    public function setMethod($method)
+    {
+        $this->method = $method;
+
+        return $this;
+    }
+
+    /**
      * @param string $upload_url
-     * @param array  $files path to file
+     * @param array $files path to file
      *
      * @return bool
      */
@@ -99,16 +121,16 @@ abstract class Request extends Opts
             self::$logger->debug("uploadFiles to: " . $upload_url);
         }
 
-        $vkContent = $this->request($upload_url, $curl_files);
-        if (!$vkContent) {
+        $content = $this->request($upload_url, $curl_files);
+        if (!$content) {
             return false;
         }
 
-        self::$logger->debug("execUrl result: " . $vkContent);
+        self::$logger->debug("execUrl result: " . $content);
 
-        $this->setOriginalAnswer($vkContent);
+        $this->setOriginalAnswer($content);
 
-        return $this->answerProcessing($vkContent);
+        return $this->answerProcessing($content);
     }
 
     /**
@@ -187,9 +209,13 @@ abstract class Request extends Opts
      */
     public function prepareHeaders()
     {
-        $headers['Content-type'] = 'multipart/form-data';
+        if ($this->isIgnoreDefaultHeader()) {
+            $headers = [];
+        } else {
+            $headers['Content-type'] = 'multipart/form-data';
+        }
 
-        $headers      = array_merge($headers, $this->getHeaders());
+        $headers = array_merge($headers, $this->getHeaders());
         $http_headers = [];
         foreach ($headers as $key => $header) {
             $http_headers[] = $key . ': ' . $header;

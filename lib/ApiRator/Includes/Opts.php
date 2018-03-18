@@ -23,6 +23,29 @@ class Opts
     private static $afterRequestCallback = [];
 
     /**
+     * @var bool
+     */
+    private $ignoreDefaultHeader = false;
+
+    /**
+     * @return $this
+     */
+    public function ignoreDefaultHeader()
+    {
+        $this->ignoreDefaultHeader = true;
+
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isIgnoreDefaultHeader()
+    {
+        return $this->ignoreDefaultHeader;
+    }
+
+    /**
      * @return array
      */
     public function getBeforeRequestCallback()
@@ -64,7 +87,7 @@ class Opts
     }
 
     /**
-     * @param array  $callbackType
+     * @param array $callbackType
      * @param string $access_token
      */
     protected function execCallback($callbackType, $access_token = '')
@@ -156,7 +179,7 @@ class Opts
     /**
      * Opts constructor.
      *
-     * @param string               $magic_arg
+     * @param string $magic_arg
      * @param LoggerInterface|null $logger
      */
     public function __construct($magic_arg, $logger = null)
@@ -286,7 +309,7 @@ class Opts
     }
 
     /**
-     * @param string       $name
+     * @param string $name
      * @param array|string $value maybe ['value' => 'test', 'require' => true]
      *
      * @return $this
